@@ -18,7 +18,6 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 @Component
-@Transactional
 public class View {
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final String BOOK_NAMES_SEPARATOR = ";";
@@ -50,10 +49,6 @@ public class View {
             System.out.println("Press ra - to read all entities");
             System.out.println("Press u - to update an entity");
             System.out.println("Press d - to delete an entity");
-            System.out.println("Press g - to generate entities");
-            System.out.println("Press s1 - to search with the first set of attributes");
-            System.out.println("Press s2 - to search with the second set of attributes");
-            System.out.println("Press s3 - to search with the third set of attributes");
             System.out.println("Press q - to quit the program");
             System.out.println();
 
@@ -83,7 +78,8 @@ public class View {
         }
     }
 
-    private void createEntity() {
+    @Transactional
+    void createEntity() {
         while (true) {
             System.out.println();
             System.out.println("Press a - to create an author");
@@ -121,7 +117,8 @@ public class View {
         }
     }
 
-    private void readEntityById() {
+    @Transactional
+    void readEntityById() {
         while (true) {
             System.out.println();
             System.out.println("Press a - to read an author");
@@ -135,7 +132,7 @@ public class View {
 
             switch (SCANNER.next()) {
                 case "a":
-                    final long authorId = readId();
+                    final long authorId = readId("An author");
 
                     try {
                         printAuthor(authorRepository.findById(authorId).orElseThrow());
@@ -146,7 +143,7 @@ public class View {
 
                     break;
                 case "b":
-                    final long bookId = readId();
+                    final long bookId = readId("A book");
 
                     try {
                         printBook(bookRepository.findById(bookId).orElseThrow());
@@ -157,7 +154,7 @@ public class View {
 
                     break;
                 case "r":
-                    final long readerId = readId();
+                    final long readerId = readId("A reader");
 
                     try {
                         printReader(readerRepository.findById(readerId).orElseThrow());
@@ -168,7 +165,7 @@ public class View {
 
                     break;
                 case "s":
-                    final long subscriptionId = readId();
+                    final long subscriptionId = readId("A subscription");
 
                     try {
                         printSubscription(subscriptionRepository.findById(subscriptionId).orElseThrow());
@@ -189,7 +186,8 @@ public class View {
         }
     }
 
-    private void readAllEntities() {
+    @Transactional
+    void readAllEntities() {
         while (true) {
             System.out.println();
             System.out.println("Press a - to read authors");
@@ -245,7 +243,8 @@ public class View {
         }
     }
 
-    private void updateEntity() {
+    @Transactional
+    void updateEntity() {
         while (true) {
             System.out.println();
             System.out.println("Press a - to update an author");
@@ -259,47 +258,59 @@ public class View {
 
             switch (SCANNER.next()) {
                 case "a":
-                    final long authorId = readId();
+                    final long authorId = readId("An author");
 
                     if (!authorRepository.existsById(authorId)) {
                         System.out.println("ERROR. An author with id=" + authorId + " does not exist");
                         continue;
                     }
 
-                    authorRepository.saveAndFlush(readAuthor());
+                    final Author author = readAuthor();
+                    author.setId(authorId);
+
+                    authorRepository.saveAndFlush(author);
 
                     break;
                 case "b":
-                    final long bookId = readId();
+                    final long bookId = readId("A book");
 
                     if (!bookRepository.existsById(bookId)) {
                         System.out.println("ERROR. A book with id=" + bookId + " does not exist");
                         continue;
                     }
 
-                    bookRepository.saveAndFlush(readBook());
+                    final Book book = readBook();
+                    book.setId(bookId);
+
+                    bookRepository.saveAndFlush(book);
 
                     break;
                 case "r":
-                    final long readerId = readId();
+                    final long readerId = readId("A reader");
 
                     if (!readerRepository.existsById(readerId)) {
                         System.out.println("ERROR. A reader with id=" + readerId + " does not exist");
                         continue;
                     }
 
-                    readerRepository.saveAndFlush(readReader());
+                    final Reader reader = readReader();
+                    reader.setId(readerId);
+
+                    readerRepository.saveAndFlush(reader);
 
                     break;
                 case "s":
-                    final long subscriptionId = readId();
+                    final long subscriptionId = readId("A subscription");
 
                     if (!subscriptionRepository.existsById(subscriptionId)) {
                         System.out.println("ERROR. A subscription with id=" + subscriptionId + " does not exist");
                         continue;
                     }
 
-                    subscriptionRepository.saveAndFlush(readSubscription());
+                    final Subscription subscription = readSubscription();
+                    subscription.setId(subscriptionId);
+
+                    subscriptionRepository.saveAndFlush(subscription);
 
                     break;
                 case "q":
@@ -309,13 +320,14 @@ public class View {
                     continue;
             }
 
-            System.out.println("An entity has been successfully created");
+            System.out.println("An entity has been successfully update");
 
             break;
         }
     }
 
-    private void deleteEntity() {
+    @Transactional
+    void deleteEntity() {
         while (true) {
             System.out.println();
             System.out.println("Press a - to delete an author");
@@ -329,16 +341,16 @@ public class View {
 
             switch (SCANNER.next()) {
                 case "a":
-                    authorRepository.deleteById(readId());
+                    authorRepository.deleteById(readId("An author"));
                     break;
                 case "b":
-                    bookRepository.deleteById(readId());
+                    bookRepository.deleteById(readId("A book"));
                     break;
                 case "r":
-                    readerRepository.deleteById(readId());
+                    readerRepository.deleteById(readId("A reader"));
                     break;
                 case "s":
-                    subscriptionRepository.deleteById(readId());
+                    subscriptionRepository.deleteById(readId("A subscription"));
                     break;
                 case "q":
                     System.exit(0);
@@ -346,6 +358,8 @@ public class View {
                     System.out.println("Incorrect entity type. Try again.");
                     continue;
             }
+
+            System.out.println("An entity has been successfully deleted");
 
             break;
         }
@@ -361,7 +375,11 @@ public class View {
         author.setSecondName(SCANNER.next());
 
         do {
-            author.addBook(readBook());
+            final long bookId = readId("A book");
+            final Book book = readBook();
+            book.setId(bookId);
+
+            author.addBook(book);
 
             System.out.println("\nPress " + KEY_TO_STOP_ADDING_ENTITIES + " - to stop adding books");
             System.out.print("Continue: ");
@@ -479,9 +497,9 @@ public class View {
         subscription.getBookList().forEach(this::printBook);
     }
 
-    private long readId() {
+    private long readId(String entityName) {
         while (true) {
-            System.out.print("Id: ");
+            System.out.print(entityName + " id: ");
 
             final long id;
             final String errorMessage = "This field should be a positive int";

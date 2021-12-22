@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.util.Objects;
+import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
@@ -35,6 +36,7 @@ public class JpaConfig {
         entityManagerFactory.setDataSource(dataSource());
         entityManagerFactory.setPackagesToScan("com.github.yaroslavskybadev.model");
         entityManagerFactory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        entityManagerFactory.setJpaProperties(readAdditionalProperties());
 
         return entityManagerFactory;
     }
@@ -44,7 +46,7 @@ public class JpaConfig {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(Objects.requireNonNull(environment.getProperty("jdbc.driverClassName")));
         dataSource.setUrl(environment.getProperty("jdbc.url"));
-        dataSource.setUsername(environment.getProperty("jdbc.user"));
+        dataSource.setUsername(environment.getProperty("jdbc.username"));
         dataSource.setPassword(environment.getProperty("jdbc.password"));
 
         return dataSource;
@@ -61,5 +63,20 @@ public class JpaConfig {
     @Bean
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
+    }
+
+    private Properties readAdditionalProperties() {
+        final Properties hibernateProperties = new Properties();
+
+        final String hbm2ddlAutoKey = "hibernate.hbm2ddl.auto";
+        hibernateProperties.setProperty(hbm2ddlAutoKey, environment.getProperty(hbm2ddlAutoKey));
+
+        final String dialectKey = "hibernate.dialect";
+        hibernateProperties.setProperty(dialectKey, environment.getProperty(dialectKey));
+
+        final String enableLazyLoadNoTransKey = "hibernate.enable_lazy_load_no_trans";
+        hibernateProperties.setProperty(enableLazyLoadNoTransKey, environment.getProperty(enableLazyLoadNoTransKey));
+
+        return hibernateProperties;
     }
 }

@@ -38,7 +38,7 @@ public class Subscription {
     @Column(name = "expiration_date", nullable = false)
     private Date expirationDate;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "book_subscription",
             joinColumns = @JoinColumn(name = "subscription_id"),
