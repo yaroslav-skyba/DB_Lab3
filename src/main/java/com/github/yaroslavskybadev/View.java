@@ -22,6 +22,7 @@ public class View {
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final String BOOK_NAMES_SEPARATOR = ";";
     private static final String KEY_TO_STOP_ADDING_ENTITIES = "s";
+    private static final int STRING_MAX_LENGTH = 50;
 
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
@@ -93,7 +94,7 @@ public class View {
 
             switch (SCANNER.next()) {
                 case "a":
-                    authorRepository.saveAndFlush(readAuthor());
+                    authorRepository.saveAndFlush(readAuthor(false));
                     break;
                 case "b":
                     bookRepository.saveAndFlush(readBook());
@@ -102,7 +103,7 @@ public class View {
                     readerRepository.saveAndFlush(readReader());
                     break;
                 case "s":
-                    subscriptionRepository.saveAndFlush(readSubscription());
+                    subscriptionRepository.saveAndFlush(readSubscription(false));
                     break;
                 case "q":
                     System.exit(0);
@@ -265,7 +266,7 @@ public class View {
                         continue;
                     }
 
-                    final Author author = readAuthor();
+                    final Author author = readAuthor(true);
                     author.setId(authorId);
 
                     authorRepository.saveAndFlush(author);
@@ -307,7 +308,7 @@ public class View {
                         continue;
                     }
 
-                    final Subscription subscription = readSubscription();
+                    final Subscription subscription = readSubscription(true);
                     subscription.setId(subscriptionId);
 
                     subscriptionRepository.saveAndFlush(subscription);
@@ -365,19 +366,47 @@ public class View {
         }
     }
 
-    private Author readAuthor() {
+    private Author readAuthor(boolean isBookUpdatable) {
         final Author author = new Author();
 
-        System.out.print("An author first name: ");
-        author.setFirstName(SCANNER.next());
+        while (true) {
+            System.out.print("An author first name: ");
 
-        System.out.print("An author second name: ");
-        author.setSecondName(SCANNER.next());
+            final String firstName = SCANNER.next();
+
+            if (!firstName.isBlank() && firstName.length() <= STRING_MAX_LENGTH) {
+                author.setFirstName(firstName.trim().replaceAll("\\s+", " "));
+                break;
+            }
+
+            System.out.println("ERROR. This field can not be blank or be longer than 50 symbols\n");
+        }
+
+        while (true) {
+            System.out.print("An author second name: ");
+
+            final String secondName = SCANNER.next();
+
+            if (!secondName.isBlank() && secondName.length() <= STRING_MAX_LENGTH) {
+                author.setSecondName(secondName.trim().replaceAll("\\s+", " "));
+                break;
+            }
+
+            System.out.println("ERROR. This field can not be blank or be longer than 50 symbols\n");
+        }
 
         do {
-            final long bookId = readId("A book");
+            Long bookId = null;
+
+            if (isBookUpdatable) {
+                bookId = readId("A book");
+            }
+
             final Book book = readBook();
-            book.setId(bookId);
+
+            if (isBookUpdatable) {
+                book.setId(bookId);
+            }
 
             author.addBook(book);
 
@@ -391,8 +420,18 @@ public class View {
     private Book readBook() {
         final Book book = new Book();
 
-        System.out.print("A book name: ");
-        book.setName(SCANNER.next());
+        while (true) {
+            System.out.print("A book name: ");
+
+            final String name = SCANNER.next();
+
+            if (!name.isBlank() && name.length() <= STRING_MAX_LENGTH) {
+                book.setName(name.trim().replaceAll("\\s+", " "));
+                break;
+            }
+
+            System.out.println("ERROR. This field can not be blank or be longer than 50 symbols\n");
+        }
 
         while (true) {
             System.out.print("A book page count: ");
@@ -404,7 +443,6 @@ public class View {
                 pageCount = SCANNER.nextInt();
             } catch (InputMismatchException exception) {
                 System.out.println(errorMessage);
-                SCANNER.next();
                 System.out.println();
 
                 continue;
@@ -424,16 +462,36 @@ public class View {
     private Reader readReader() {
         final Reader reader = new Reader();
 
-        System.out.print("A reader first name: ");
-        reader.setFirstName(SCANNER.next());
+        while (true) {
+            System.out.print("A reader first name: ");
 
-        System.out.print("A reader second name: ");
-        reader.setSecondName(SCANNER.next());
+            final String firstName = SCANNER.next();
+
+            if (!firstName.isBlank() && firstName.length() <= STRING_MAX_LENGTH) {
+                reader.setFirstName(firstName.trim().replaceAll("\\s+", " "));
+                break;
+            }
+
+            System.out.println("ERROR. This field can not be blank or be longer than 50 symbols\n");
+        }
+
+        while (true) {
+            System.out.print("A reader second name: ");
+
+            final String secondName = SCANNER.next();
+
+            if (!secondName.isBlank() && secondName.length() <= STRING_MAX_LENGTH) {
+                reader.setSecondName(secondName.trim().replaceAll("\\s+", " "));
+                break;
+            }
+
+            System.out.println("ERROR. This field can not be blank or be longer than 50 symbols\n");
+        }
 
         return reader;
     }
 
-    private Subscription readSubscription() {
+    private Subscription readSubscription(boolean isBookUpdatable) {
         final Subscription subscription = new Subscription();
 
         subscription.setReader(readReader());
@@ -461,7 +519,19 @@ public class View {
         }
 
         do {
-            subscription.addBook(readBook());
+            Long bookId = null;
+
+            if (isBookUpdatable) {
+                bookId = readId("A book");
+            }
+
+            final Book book = readBook();
+
+            if (isBookUpdatable) {
+                book.setId(bookId);
+            }
+
+            subscription.addBook(book);
 
             System.out.println("\nPress " + KEY_TO_STOP_ADDING_ENTITIES + " - to stop adding books");
             System.out.print("Continue: ");
