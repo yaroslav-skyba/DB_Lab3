@@ -45,11 +45,11 @@ public class View {
 
         while (true) {
             System.out.println();
-            System.out.println("Press c - to create an entity");
-            System.out.println("Press ri - to read an entity by id");
+            System.out.println("Press c - to create a row");
+            System.out.println("Press ri - to read a row by id");
             System.out.println("Press ra - to read all entities");
-            System.out.println("Press u - to update an entity");
-            System.out.println("Press d - to delete an entity");
+            System.out.println("Press u - to update a row");
+            System.out.println("Press d - to delete a row");
             System.out.println("Press q - to quit the program");
             System.out.println();
 
@@ -90,7 +90,7 @@ public class View {
             System.out.println("Press q - to quit the program");
             System.out.println();
 
-            System.out.print("Choose an entity: ");
+            System.out.print("Choose a row: ");
 
             switch (SCANNER.next()) {
                 case "a":
@@ -108,11 +108,11 @@ public class View {
                 case "q":
                     System.exit(0);
                 default:
-                    System.out.println("ERROR. An incorrect entity type");
+                    System.out.println("ERROR. An incorrect row type");
                     continue;
             }
 
-            System.out.println("An entity has been successfully created");
+            System.out.println("A row has been successfully created");
 
             break;
         }
@@ -129,7 +129,7 @@ public class View {
             System.out.println("Press q - to quit the program");
             System.out.println();
 
-            System.out.print("Choose an entity: ");
+            System.out.print("Choose a row: ");
 
             switch (SCANNER.next()) {
                 case "a":
@@ -179,7 +179,7 @@ public class View {
                 case "q":
                     System.exit(0);
                 default:
-                    System.out.println("ERROR. An incorrect entity type");
+                    System.out.println("ERROR. An incorrect row type");
                     continue;
             }
 
@@ -198,7 +198,7 @@ public class View {
             System.out.println("Press q - to quit the program");
             System.out.println();
 
-            System.out.print("Choose an entity: ");
+            System.out.print("Choose a row: ");
 
             switch (SCANNER.next()) {
                 case "a":
@@ -236,7 +236,7 @@ public class View {
                 case "q":
                     System.exit(0);
                 default:
-                    System.out.println("ERROR. Incorrect entity type");
+                    System.out.println("ERROR. Incorrect row type");
                     continue;
             }
 
@@ -255,7 +255,7 @@ public class View {
             System.out.println("Press q - to quit the program");
             System.out.println();
 
-            System.out.print("Choose an entity: ");
+            System.out.print("Choose a row: ");
 
             switch (SCANNER.next()) {
                 case "a":
@@ -317,11 +317,11 @@ public class View {
                 case "q":
                     System.exit(0);
                 default:
-                    System.out.println("ERROR. An incorrect entity type");
+                    System.out.println("ERROR. An incorrect row type");
                     continue;
             }
 
-            System.out.println("An entity has been successfully update");
+            System.out.println("A row has been successfully updated");
 
             break;
         }
@@ -338,7 +338,7 @@ public class View {
             System.out.println("Press q - to quit the program");
             System.out.println();
 
-            System.out.print("Choose an entity: ");
+            System.out.print("Choose a row: ");
 
             switch (SCANNER.next()) {
                 case "a":
@@ -356,11 +356,11 @@ public class View {
                 case "q":
                     System.exit(0);
                 default:
-                    System.out.println("Incorrect entity type. Try again.");
+                    System.out.println("An incorrect row type. Try again.");
                     continue;
             }
 
-            System.out.println("An entity has been successfully deleted");
+            System.out.println("A row has been successfully deleted");
 
             break;
         }
@@ -541,28 +541,28 @@ public class View {
     }
 
     private void printAuthor(Author author) {
-        System.out.println("First name: " + author.getFirstName());
-        System.out.println("Second name: " + author.getSecondName());
+        System.out.println("A author first name: " + author.getFirstName());
+        System.out.println("A author second name: " + author.getSecondName());
         System.out.println("Books: ");
         author.getBookList().forEach(this::printBook);
     }
 
     private void printBook(Book book) {
-        System.out.println("Name: " + book.getName());
-        System.out.println("Page count: " + book.getPageCount());
+        System.out.println("A book name: " + book.getName());
+        System.out.println("A book page count: " + book.getPageCount());
     }
 
     private void printReader(Reader reader) {
-        System.out.println("First name: " + reader.getFirstName());
-        System.out.println("Second name: " + reader.getSecondName());
+        System.out.println("A reader first name: " + reader.getFirstName());
+        System.out.println("A reader second name: " + reader.getSecondName());
     }
 
     private void printSubscription(Subscription subscription) {
         final Reader subscriptionReader = subscription.getReader();
-        System.out.println("Reader first name: " + subscriptionReader.getFirstName());
-        System.out.println("Reader second name: " + subscriptionReader.getSecondName());
-        System.out.println("Registration date: " + subscription.getRegistrationDate());
-        System.out.println("Expiration date: " + subscription.getExpirationDate());
+        System.out.println("A reader first name: " + subscriptionReader.getFirstName());
+        System.out.println("A reader second name: " + subscriptionReader.getSecondName());
+        System.out.println("A subscription registration date: " + subscription.getRegistrationDate());
+        System.out.println("A subscription expiration date: " + subscription.getExpirationDate());
         System.out.println("Books: ");
         subscription.getBookList().forEach(this::printBook);
     }
