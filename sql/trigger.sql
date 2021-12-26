@@ -1,26 +1,55 @@
-CREATE OR REPLACE FUNCTION update_delete_func() RETURNS TRIGGER as $$
+DROP TABLE IF EXISTS trigger_test;
+CREATE TABLE trigger_test(trigger_test_id bigserial PRIMARY KEY, trigger_test_name text);
 
-DECLARE CURSOR_LOG CURSOR FOR SELECT * FROM reader_log;
-row_Log reader_log%ROWTYPE;
+DROP TABLE IF EXISTS trigger_test_log;
+CREATE TABLE trigger_test_log(id bigserial PRIMARY KEY, trigger_test_log_id bigint, trigger_test_log_name text);
 
-begin
-    IF old.id % 2 = 0 THEN
-        INSERT INTO reader_log(id, first_name, second_name) VALUES (old.id, old.first_name, old.second_name);
-        UPDATE reader_log SET first_name = trim(BOTH 'x' FROM first_name);
+CREATE OR REPLACE FUNCTION before_delete_update_func() RETURNS TRIGGER as $trigger$
+DECLARE
+    CURSOR_LOG CURSOR FOR SELECT * FROM trigger_test_log;
+    row_ trigger_test_log%ROWTYPE;
 
-        RETURN NEW;
+BEGIN
+    IF old.trigger_test_id % 2 = 0 THEN
+        IF old.trigger_test_id % 3 = 0 THEN
+            RAISE NOTICE 'trigger_testID is multiple of 2 and 3';
+
+            FOR row_ IN CURSOR_LOG LOOP
+                UPDATE trigger_test_log SET trigger_test_log_name = '_' || row_.trigger_test_log_name || '_log' WHERE id = row_.id;
+            END LOOP;
+
+            RETURN OLD;
+        ELSE
+            RAISE NOTICE 'trigger_testID is even';
+            INSERT INTO trigger_test_log(trigger_test_log_id, trigger_test_log_name)
+            VALUES (old.trigger_test_id, old.trigger_test_name);
+            UPDATE trigger_test_log SET trigger_test_log_name = trim(BOTH '_log' FROM trigger_test_log_name);
+
+            RETURN NEW;
+        END IF;
     ELSE
-        RAISE NOTICE 'readerID is odd';
+        RAISE NOTICE 'trigger_testID is odd';
 
-        FOR row_log IN cursor_log LOOP
-                UPDATE reader_log SET first_name = 'x' || row_Log.first_name || 'x' WHERE "id" = row_log."id";
+        FOR row_ IN CURSOR_LOG LOOP
+            UPDATE trigger_test_log SET trigger_test_log_name = '_' || row_.trigger_test_log_name || '_log' WHERE id = row_.id;
         END LOOP;
 
-        RETURN NEW;
+        RETURN OLD;
     END IF;
-END;
+END
 
-$$ language plpgsql;
+$trigger$ LANGUAGE plpgsql;
 
-create trigger reader_trigger before delete or update on reader for each row
-execute procedure update_delete_func();
+CREATE TRIGGER before_delete_update_trigger
+    BEFORE DELETE OR UPDATE ON trigger_test
+    FOR EACH ROW
+EXECUTE procedure before_delete_update_func();
+
+INSERT INTO trigger_test(trigger_test_name) VALUES ('trigger_test1'),('trigger_test2'),
+                                                   ('trigger_test3'), ('trigger_test4'),
+                                                   ('trigger_test5'), ('trigger_test6'),
+                                                   ('trigger_test7'), ('trigger_test8'),
+                                                   ('trigger_test9'), ('trigger_test10');
+
+DELETE FROM trigger_test WHERE trigger_test_id % 3 = 0;
+UPDATE trigger_test SET trigger_test_name = trigger_test_name || '_log' WHERE trigger_test_id % 2 = 0;
